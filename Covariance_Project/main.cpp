@@ -156,14 +156,21 @@ int main(int argc, char* argv[])
 	EigenSolver<MatrixXd> es;
 	vector<thread> tDrawer;
 	
-	cout << "Read Cloud Data..." << endl;
+	cout << "Read Cloud Data..." << endl << endl;
 	cloudData.readData("planeCloud.txt");
+
+	cout << "Mean of cloud : " << endl;
 	cout << cloudData.Mean << endl << endl;
+	cout << "Covariance of cloud : " << endl;
 	cout << cloudData.Cov << endl << endl;
 
 	es.compute(cloudData.Cov);
+	cout << "EigenValues of cloud : " << endl;
 	cout << es.eigenvalues() << endl << endl;
+	cout << "EigenVectors of cloud : " << endl;
 	cout << es.eigenvectors() << endl << endl;
+
+	cout << "Plot Cloud With Eigen Vectors..." << endl << endl;
 
 	fstream fio("CloudEigenValue.txt", ios::out);
 	fio << es.eigenvalues().real() << endl;
@@ -175,18 +182,11 @@ int main(int argc, char* argv[])
 	fio << cloudData.Mean << endl;
 	fio.close();
 
-	cout << "Plot Cloud With Eigen Vectors..." << endl;
-	//thread tplot([]
-	//	{system("python ..\\Covariance_Plotter\\cloudPlot.py");} );
-
 	tDrawer.push_back(thread([] {system("python ..\\Covariance_Plotter\\cloudPlot.py"); }));
 
-	cout << "Change Data into 2D..." << endl;
+	cout << "Change Data into 2D..." << endl << endl;
 
 	MyData cloud2D(2);
-
-	cout << es.eigenvectors().real().col(1) << endl;
-
 	for (auto& V : cloudData.dataBody)
 	{
 		VectorXd buf(2);
@@ -198,13 +198,18 @@ int main(int argc, char* argv[])
 	cloud2D.init();
 	cloud2D.wirteData("cloud2D.txt");
 
+	cout << "Plotting 2D converted Data..." << endl << endl;
 	tDrawer.push_back(thread([] {system("python ..\\Covariance_Plotter\\cloud2Dplot.py"); }));
 
 	Gauss2D gaussian(cloud2D.Cov, cloud2D.Mean);
 
+	cout << "Mean of cloud 2D : " << endl;
 	cout << cloud2D.Mean << endl << endl;
+	cout << "Covariance of cloud 2D : " << endl;
 	cout << cloud2D.Cov << endl << endl;
 
+
+	cout << "Plotting Gaussian Graph..." << endl << endl;
 	fio.open("cloudGauss.txt", ios::out);
 	for (double i = 50.; i < 249.999999; i += 0.1)
 	{
@@ -214,9 +219,9 @@ int main(int argc, char* argv[])
 		}
 	}
 	fio.close();
-
 	tDrawer.push_back(thread([] {system("python ..\\Covariance_Plotter\\gauss2Dplot.py"); }));
 
+	cout << "Reading Iris Data..." << endl << endl;
 	MyData irisData(5);
 	irisData.readData("iris.txt");
 	cout << irisData.Mean << endl << endl;
@@ -230,34 +235,21 @@ int main(int argc, char* argv[])
 		Iris.dataBody.push_back(buf);
 	}
 	Iris.init();
-
-	for (auto& V :  irisData.dataBody)
-	{
-		for (auto& D : V)
-		{
-			cout << setw(6) << D;
-		}
-		cout << endl;
-	}
+	
 	cout << endl;
 
-	for (auto& V : Iris.dataBody)
-	{
-		for (auto& D : V)
-		{
-			cout << setw(6) << D ;
-		}
-		cout << endl;
-	}
-	cout << endl;
-
+	cout << "Mean of iris : " << endl;
 	cout << Iris.Mean << endl << endl;
+	cout << "Covariance of iris : " << endl;
 	cout << Iris.Cov << endl << endl;
 
 	es.compute(Iris.Cov);
+	cout << "EigenValues of iris : " << endl;
 	cout << es.eigenvalues() << endl;
-	cout << es.eigenvectors() << endl;
+	cout << "EigenVectors of iris : " << endl;
+	cout << es.eigenvectors() << endl << endl;
 
+	cout << "Coverting Iris Data with the principle component..." << endl << endl;
 	MyData iris2D(2);
 	for (auto& V : Iris.dataBody)
 	{
@@ -280,9 +272,12 @@ int main(int argc, char* argv[])
 	}
 
 
+	cout << "Plot Iris Data..." << endl << endl;
 	iris2D_withClass.wirteData("iris2D.txt");
 	tDrawer.push_back(thread([] {system("python ..\\Covariance_Plotter\\iris2Dplot.py"); }));
 
+
+	cout << "Reading Stock market Data..." << endl << endl;
 	MyData stockTMP(6), stockData(12);
 	stockTMP.readData("6_Portfolios_2x3_weekly.csv");
 	for (int j = 0; j < (stockTMP.dataBody.size() - 1); j++)
@@ -297,23 +292,15 @@ int main(int argc, char* argv[])
 	}
 
 
+	cout << "Correlation Between Stockdata & future data..." << endl << endl;
 	stockData.init();
-	for (auto& V : stockData.dataBody)
-	{
-		for (auto& D : V)
-		{
-			cout << D << "\t";
-		}
-		cout << endl;
-	}
 	cout << stockData.CoR << endl << endl;
 
-	
-
+	cout << "Terminating...";
 	for (auto& T : tDrawer) 
 	{
 		T.join();
 	}
-
+	cout << "Done!" << endl;
 	return 0;
 }
