@@ -260,6 +260,28 @@ int main(int argc, char* argv[])
 	}
 	Iris0.init(), Iris1.init(), Iris2.init();
 
+	cout << "Coverting Iris Data with the principle component..." << endl << endl;
+	MyData iris2D(2);
+	for (auto& V : Iris.dataBody)
+	{
+		VectorXd buf(2);
+		buf(0) = V.dot(es.eigenvectors().real().col(0));
+		buf(1) = V.dot(es.eigenvectors().real().col(1));
+		// 3rd, 4th Vector is Negligible
+		iris2D.dataBody.push_back(buf);
+	}
+	iris2D.init();
+	MyData iris2D_withClass(3);
+	for (int i = 0; i < iris2D.dataBody.size(); i++)
+	{
+		VectorXd buf(3);
+		buf(0) = iris2D.dataBody[i](0);
+		buf(1) = iris2D.dataBody[i](1);
+		buf(2) = irisData.dataBody[i](4);
+
+		iris2D_withClass.dataBody.push_back(buf);
+	}
+
 	VectorXd PC0, PC1, PC2;
 
 	cout << "Mean of iris 0 : " << endl;
@@ -327,28 +349,6 @@ int main(int argc, char* argv[])
 	}
 	fio.close();
 
-	cout << "Coverting Iris Data with the principle component..." << endl << endl;
-	MyData iris2D(2);
-	for (auto& V : Iris.dataBody)
-	{
-		VectorXd buf(2);
-		buf(0) = V.dot(es.eigenvectors().real().col(0));
-		buf(1) = V.dot(es.eigenvectors().real().col(1));
-		// 3rd, 4th Vector is Negligible
-		iris2D.dataBody.push_back(buf);
-	}
-	iris2D.init();
-	MyData iris2D_withClass(3);
-	for (int i = 0; i < iris2D.dataBody.size(); i++)
-	{
-		VectorXd buf(3);
-		buf(0) = iris2D.dataBody[i](0);
-		buf(1) = iris2D.dataBody[i](1);
-		buf(2) = irisData.dataBody[i](4);
-
-		iris2D_withClass.dataBody.push_back(buf);
-	}
-
 	cout << "Plot Iris Data..." << endl << endl;
 	iris2D_withClass.wirteData("iris2D.txt");
 	tDrawer.push_back(thread([] {system("python ..\\Covariance_Plotter\\iris2Dplot.py"); }));
@@ -369,6 +369,34 @@ int main(int argc, char* argv[])
 
 
 	cout << "Correlation Between Stockdata & future data..." << endl << endl;
+	stockData.init();
+	cout << stockData.CoR << endl << endl;
+
+	stockData.dataBody.clear();
+	for (int j = 0; j < (stockTMP.dataBody.size() - 2); j++)
+	{
+		VectorXd buf(12);
+		for (int i = 0; i < 6; i++)
+		{
+			buf(i + 0) = stockTMP.dataBody[j + 0](i);
+			buf(i + 6) = stockTMP.dataBody[j + 2](i);
+		}
+		stockData.dataBody.push_back(buf);
+	}
+	stockData.init();
+	cout << stockData.CoR << endl << endl;
+
+	stockData.dataBody.clear();
+	for (int j = 0; j < (stockTMP.dataBody.size() - 3); j++)
+	{
+		VectorXd buf(12);
+		for (int i = 0; i < 6; i++)
+		{
+			buf(i + 0) = stockTMP.dataBody[j + 0](i);
+			buf(i + 6) = stockTMP.dataBody[j + 3](i);
+		}
+		stockData.dataBody.push_back(buf);
+	}
 	stockData.init();
 	cout << stockData.CoR << endl << endl;
 
